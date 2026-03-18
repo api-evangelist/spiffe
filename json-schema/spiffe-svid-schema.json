@@ -1,0 +1,227 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://spiffe.io/schemas/spiffe/svid.json",
+  "title": "SPIFFE Identity Documents",
+  "description": "Schema for SPIFFE (Secure Production Identity Framework for Everyone) identity entities including SPIFFE IDs, X.509-SVIDs, JWT-SVIDs, trust bundles, and the trust domain model used for zero-trust workload identity.",
+  "type": "object",
+  "$defs": {
+    "SpiffeID": {
+      "type": "string",
+      "title": "SPIFFE ID",
+      "description": "A SPIFFE ID is a URI that uniquely identifies a workload within a trust domain. The URI scheme is 'spiffe://' followed by the trust domain name and an optional workload path. SPIFFE IDs are carried in the Subject Alternative Name URI extension of X.509-SVIDs and as the 'sub' claim in JWT-SVIDs.",
+      "pattern": "^spiffe://[a-zA-Z0-9._-]+(:[0-9]+)?(/[a-zA-Z0-9._~!$&'()*+,;=:@%-]*)*$",
+      "examples": [
+        "spiffe://example.org/service/frontend",
+        "spiffe://prod.example.com/ns/default/sa/my-service",
+        "spiffe://trust-domain.example/path/to/workload"
+      ]
+    },
+    "TrustDomain": {
+      "type": "string",
+      "title": "Trust Domain",
+      "description": "A SPIFFE trust domain is the administrative authority that issues SVIDs and maintains the trust bundle. Trust domain names follow DNS name syntax and are used as the host component of SPIFFE IDs. A trust domain is uniquely identified by the combination of its name and root CA certificates.",
+      "pattern": "^[a-zA-Z0-9._-]+(:[0-9]+)?$",
+      "examples": [
+        "example.org",
+        "prod.example.com",
+        "cluster.local"
+      ]
+    },
+    "X509SVID": {
+      "type": "object",
+      "title": "X.509-SVID",
+      "description": "An X.509 SVID (SPIFFE Verifiable Identity Document) is an X.509 certificate that encodes a SPIFFE ID in its Subject Alternative Name URI extension field. X.509-SVIDs enable mutual TLS (mTLS) authentication between workloads using standard X.509 certificate validation, with the SPIFFE ID serving as the workload's identity.",
+      "required": ["spiffe_id", "x509_svid", "x509_svid_key", "bundle"],
+      "properties": {
+        "spiffe_id": {
+          "$ref": "#/$defs/SpiffeID",
+          "description": "The SPIFFE ID encoded in the certificate's Subject Alternative Name URI field, identifying the workload this SVID was issued for"
+        },
+        "x509_svid": {
+          "type": "string",
+          "description": "DER-encoded X.509 certificate chain for this SVID, encoded as base64. The first certificate is the leaf (end-entity) certificate containing the SPIFFE ID. Subsequent certificates are intermediate CAs.",
+          "contentEncoding": "base64"
+        },
+        "x509_svid_key": {
+          "type": "string",
+          "description": "DER-encoded PKCS#8 private key corresponding to the leaf certificate, encoded as base64. The workload must protect this key and use it for mTLS handshakes.",
+          "contentEncoding": "base64"
+        },
+        "bundle": {
+          "type": "string",
+          "description": "DER-encoded X.509 trust bundle for the workload's own trust domain, encoded as base64. Contains the root CA certificates used to validate peer X.509-SVIDs from the same trust domain.",
+          "contentEncoding": "base64"
+        },
+        "hint": {
+          "type": "string",
+          "description": "Optional hint from the SPIFFE implementation to help workloads select among multiple SVIDs when they hold more than one identity. The hint value is administrator-defined and workload-specific.",
+          "maxLength": 1024
+        }
+      }
+    },
+    "JWTSVID": {
+      "type": "object",
+      "title": "JWT-SVID",
+      "description": "A JWT SVID (SPIFFE Verifiable Identity Document) is a JSON Web Token that encodes a SPIFFE ID as the 'sub' claim and a target audience as the 'aud' claim. JWT-SVIDs enable HTTP header-based authentication between services and are useful when mTLS is not practical, such as in multi-hop scenarios or when crossing trust domain boundaries.",
+      "required": ["token", "spiffe_id"],
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "The signed JWT-SVID as a compact JWS string (base64url-encoded header, payload, and signature separated by dots). The token contains the SPIFFE ID as 'sub', the target service as 'aud', and an expiry 'exp' claim.",
+          "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+        },
+        "spiffe_id": {
+          "$ref": "#/$defs/SpiffeID",
+          "description": "The SPIFFE ID encoded in the token's 'sub' (subject) claim"
+        },
+        "expiry_time": {
+          "type": "integer",
+          "description": "Unix timestamp (seconds since Unix epoch) when this JWT-SVID expires. JWT-SVIDs have short TTLs (typically 5 minutes) and must be fetched fresh rather than cached.",
+          "minimum": 0
+        }
+      }
+    },
+    "JWTSVIDClaims": {
+      "type": "object",
+      "title": "JWT-SVID Claims",
+      "description": "The decoded claims payload of a JWT-SVID. JWT-SVIDs must contain the mandatory claims defined by the SPIFFE JWT-SVID specification: sub (SPIFFE ID), aud (audience), and exp (expiration).",
+      "required": ["sub", "aud", "exp"],
+      "properties": {
+        "sub": {
+          "$ref": "#/$defs/SpiffeID",
+          "description": "Subject claim containing the SPIFFE ID of the issuing workload"
+        },
+        "aud": {
+          "type": "array",
+          "description": "Audience claim specifying the intended recipient(s) of this token. The validator must verify that its own SPIFFE ID or service name is listed in the audience.",
+          "items": {
+            "type": "string",
+            "description": "An audience value, typically a SPIFFE ID or service URL"
+          },
+          "minItems": 1
+        },
+        "exp": {
+          "type": "integer",
+          "description": "Expiration time as Unix timestamp. The token must be rejected after this time.",
+          "minimum": 0
+        },
+        "iat": {
+          "type": "integer",
+          "description": "Issued-at time as Unix timestamp indicating when the token was created",
+          "minimum": 0
+        },
+        "jti": {
+          "type": "string",
+          "description": "Optional unique JWT ID for identifying this specific token, usable for revocation checking"
+        }
+      },
+      "additionalProperties": true
+    },
+    "TrustBundle": {
+      "type": "object",
+      "title": "Trust Bundle",
+      "description": "A SPIFFE trust bundle contains the root CA certificates for a trust domain, encoded as a JWKS (JSON Web Key Set) document. Trust bundles are used by validators to authenticate SVIDs issued by the corresponding trust domain. The SPIFFE Federation Bundle Endpoint serves this structure.",
+      "required": ["keys", "spiffe_refresh_hint", "spiffe_sequence"],
+      "properties": {
+        "keys": {
+          "type": "array",
+          "description": "Array of JSON Web Keys representing root CA certificates and JWT signing keys in the trust bundle",
+          "items": {
+            "$ref": "#/$defs/JWK"
+          },
+          "minItems": 1
+        },
+        "spiffe_refresh_hint": {
+          "type": "integer",
+          "description": "Recommended refresh interval in seconds for trust bundle consumers. Federation consumers should poll no more frequently than this value.",
+          "minimum": 0
+        },
+        "spiffe_sequence": {
+          "type": "integer",
+          "description": "Monotonically increasing sequence number that increments with each trust bundle update, allowing consumers to detect when the bundle has changed",
+          "minimum": 0
+        }
+      }
+    },
+    "JWK": {
+      "type": "object",
+      "title": "JSON Web Key",
+      "description": "A JSON Web Key representing a single root CA certificate or JWT signing key in a SPIFFE trust bundle. The 'use' field distinguishes between X.509-SVID validation keys and JWT-SVID validation keys.",
+      "required": ["kty", "use", "kid"],
+      "properties": {
+        "kty": {
+          "type": "string",
+          "description": "Key type identifying the cryptographic algorithm family",
+          "enum": ["EC", "RSA", "OKP"]
+        },
+        "use": {
+          "type": "string",
+          "description": "Intended use of the key: 'x509-svid' for X.509 SVID validation, 'jwt-svid' for JWT-SVID signing and validation",
+          "enum": ["x509-svid", "jwt-svid"]
+        },
+        "kid": {
+          "type": "string",
+          "description": "Key identifier uniquely identifying this key within the trust bundle, used for key selection during SVID validation",
+          "minLength": 1
+        },
+        "crv": {
+          "type": "string",
+          "description": "Elliptic curve name for EC keys",
+          "enum": ["P-256", "P-384", "P-521", "Ed25519"]
+        },
+        "x": {
+          "type": "string",
+          "description": "X coordinate for EC public keys, base64url-encoded"
+        },
+        "y": {
+          "type": "string",
+          "description": "Y coordinate for EC public keys, base64url-encoded"
+        },
+        "n": {
+          "type": "string",
+          "description": "RSA modulus for RSA public keys, base64url-encoded"
+        },
+        "e": {
+          "type": "string",
+          "description": "RSA public exponent for RSA keys, base64url-encoded"
+        },
+        "x5c": {
+          "type": "array",
+          "description": "X.509 certificate chain for this key. The first element is the root CA certificate in DER format, base64-encoded (not base64url).",
+          "items": {
+            "type": "string",
+            "description": "DER-encoded X.509 certificate in standard base64 encoding",
+            "contentEncoding": "base64"
+          }
+        }
+      }
+    },
+    "WorkloadAPIRequest": {
+      "type": "object",
+      "title": "Workload API Request",
+      "description": "Request message sent by a workload to the SPIFFE Workload API to initiate an SVID subscription stream. The request body is typically empty for X.509 requests, and contains audience information for JWT requests.",
+      "properties": {}
+    },
+    "JWTSVIDRequest": {
+      "type": "object",
+      "title": "JWT-SVID Request",
+      "description": "Request sent by a workload to fetch JWT-SVIDs for a specific audience. The workload specifies one or more audience values and optionally a specific SPIFFE ID to obtain a JWT for.",
+      "required": ["audience"],
+      "properties": {
+        "audience": {
+          "type": "array",
+          "description": "Target audience(s) for the JWT-SVID. The issued token will include these values in the 'aud' claim. Typically the SPIFFE ID or URL of the target service.",
+          "items": {
+            "type": "string",
+            "description": "An audience value string"
+          },
+          "minItems": 1
+        },
+        "spiffe_id": {
+          "$ref": "#/$defs/SpiffeID",
+          "description": "Optional specific SPIFFE ID to request a JWT for. When omitted, the SPIFFE implementation returns JWT-SVIDs for all SPIFFE IDs the workload is authorized to hold."
+        }
+      }
+    }
+  }
+}

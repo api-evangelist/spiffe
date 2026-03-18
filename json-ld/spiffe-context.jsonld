@@ -1,0 +1,137 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "spiffe": "https://spiffe.io/vocab/",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "security": "https://w3id.org/security#",
+    "cert": "http://www.w3.org/ns/auth/cert#",
+
+    "SpiffeID": {
+      "@id": "spiffe:SpiffeID",
+      "@context": {
+        "trustDomain": {
+          "@id": "spiffe:trustDomain"
+        },
+        "path": {
+          "@id": "spiffe:path"
+        }
+      }
+    },
+
+    "TrustDomain": {
+      "@id": "spiffe:TrustDomain",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "bundleEndpoint": {
+          "@id": "spiffe:bundleEndpoint",
+          "@type": "@id"
+        }
+      }
+    },
+
+    "X509SVID": {
+      "@id": "spiffe:X509SVID",
+      "@context": {
+        "spiffe_id": {
+          "@id": "spiffe:spiffeID",
+          "@type": "@id"
+        },
+        "x509_svid": {
+          "@id": "cert:certificate"
+        },
+        "bundle": {
+          "@id": "spiffe:trustBundle"
+        },
+        "hint": {
+          "@id": "spiffe:hint"
+        }
+      }
+    },
+
+    "JWTSVID": {
+      "@id": "spiffe:JWTSVID",
+      "@context": {
+        "token": {
+          "@id": "security:jws"
+        },
+        "spiffe_id": {
+          "@id": "spiffe:spiffeID",
+          "@type": "@id"
+        },
+        "expiry_time": {
+          "@id": "schema:expires",
+          "@type": "xsd:integer"
+        }
+      }
+    },
+
+    "JWTSVIDClaims": {
+      "@id": "spiffe:JWTSVIDClaims",
+      "@context": {
+        "sub": {
+          "@id": "spiffe:spiffeID",
+          "@type": "@id"
+        },
+        "aud": {
+          "@id": "spiffe:audience",
+          "@container": "@set"
+        },
+        "exp": {
+          "@id": "schema:expires",
+          "@type": "xsd:integer"
+        },
+        "iat": {
+          "@id": "dcterms:created",
+          "@type": "xsd:integer"
+        },
+        "jti": {
+          "@id": "schema:identifier"
+        }
+      }
+    },
+
+    "TrustBundle": {
+      "@id": "spiffe:TrustBundle",
+      "@context": {
+        "keys": {
+          "@id": "security:publicKeyJwk",
+          "@container": "@set"
+        },
+        "spiffe_refresh_hint": {
+          "@id": "spiffe:refreshHint",
+          "@type": "xsd:integer"
+        },
+        "spiffe_sequence": {
+          "@id": "spiffe:sequence",
+          "@type": "xsd:integer"
+        }
+      }
+    },
+
+    "JWK": {
+      "@id": "security:JsonWebKey",
+      "@context": {
+        "kty": {
+          "@id": "security:keyType"
+        },
+        "use": {
+          "@id": "security:usage"
+        },
+        "kid": {
+          "@id": "schema:identifier"
+        },
+        "crv": {
+          "@id": "security:curve"
+        },
+        "x5c": {
+          "@id": "security:x509Certificate",
+          "@container": "@set"
+        }
+      }
+    }
+  }
+}

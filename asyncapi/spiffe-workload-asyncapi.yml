@@ -1,0 +1,331 @@
+asyncapi: 2.6.0
+info:
+  title: SPIFFE Workload API Events
+  description: >-
+    The SPIFFE Workload API is a gRPC streaming interface through which workloads
+    request and receive SPIFFE Verifiable Identity Documents (SVIDs) and trust
+    bundle updates. Workloads subscribe to the API and receive a continuous stream
+    of identity updates as certificates are issued, rotated, and renewed. The API
+    uses server-side streaming RPCs where the workload sends a single request and
+    the SPIFFE implementation (such as SPIRE Agent) streams back identity updates
+    for the lifetime of the connection. This AsyncAPI document describes the
+    streaming event channels for X.509 SVID delivery, JWT SVID issuance, and
+    trust bundle synchronization as exposed by SPIFFE Workload API implementors.
+  version: '1.0'
+  contact:
+    name: SPIFFE Community
+    url: https://spiffe.io/community/
+externalDocs:
+  description: SPIFFE Workload API Specification
+  url: https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Workload_API.md
+servers:
+  spireAgent:
+    url: 'unix:///tmp/spire-agent/public/api.sock'
+    protocol: grpc
+    description: >-
+      SPIRE Agent Unix domain socket exposing the SPIFFE Workload API.
+      Workloads connect to this socket to receive their SPIFFE identities.
+      The socket path is configurable in the SPIRE Agent configuration.
+channels:
+  /spiffe.workload.SpiffeWorkloadAPI/FetchX509SVID:
+    description: >-
+      Streaming channel through which workloads receive X.509-SVID identity
+      documents. After the workload sends a request, the server streams back
+      an initial bundle of all SVIDs the workload is authorized to hold,
+      followed by updated bundles whenever certificates are rotated or
+      authorization changes. The stream remains open indefinitely and the
+      workload should reconnect if the stream is interrupted.
+    subscribe:
+      operationId: fetchX509SVID
+      summary: Stream X.509 SVID updates
+      description: >-
+        Subscribes to a stream of X.509 SVID updates from the SPIFFE
+        implementation. The first message contains all current X.509-SVIDs
+        the workload is authorized to hold. Subsequent messages are delivered
+        whenever any SVID is rotated (typically before expiry) or when the
+        workload's authorization changes. Each message in the stream is a
+        complete replacement of the workload's current SVID set, not a delta.
+      message:
+        $ref: '#/components/messages/X509SVIDResponse'
+  /spiffe.workload.SpiffeWorkloadAPI/FetchX509Bundles:
+    description: >-
+      Streaming channel for receiving the X.509 trust bundle set for all
+      trust domains the workload needs to validate peer identities. This
+      channel delivers the federation bundles from all configured federated
+      trust domains in addition to the workload's own trust domain.
+    subscribe:
+      operationId: fetchX509Bundles
+      summary: Stream X.509 trust bundle updates
+      description: >-
+        Subscribes to a stream of X.509 trust bundle updates. The stream
+        delivers the complete set of trust bundles for the local trust domain
+        and all federated trust domains. New messages are pushed whenever
+        any trust bundle is updated, such as during CA rotation or federation
+        bundle refresh events.
+      message:
+        $ref: '#/components/messages/X509BundlesResponse'
+  /spiffe.workload.SpiffeWorkloadAPI/FetchJWTSVID:
+    description: >-
+      Request-response channel for fetching a JWT-SVID for a specific audience.
+      Unlike X.509 streaming, JWT-SVIDs are issued on demand with a short TTL
+      and should be fetched fresh for each use. The workload specifies the
+      audience claim(s) and optionally a specific SPIFFE ID to obtain a JWT for.
+    subscribe:
+      operationId: fetchJWTSVID
+      summary: Receive a JWT-SVID
+      description: >-
+        Returns a JWT-SVID for the requested audience claim(s). JWT-SVIDs are
+        short-lived tokens (typically with a 5-minute TTL) and should be
+        fetched immediately before use rather than cached. The SPIFFE
+        implementation issues the JWT-SVID for each SPIFFE ID the workload
+        is authorized to hold.
+      message:
+        $ref: '#/components/messages/JWTSVIDResponse'
+  /spiffe.workload.SpiffeWorkloadAPI/FetchJWTBundles:
+    description: >-
+      Streaming channel for receiving JWT trust bundle updates. JWT bundles
+      contain the public keys needed to validate JWT-SVIDs from all trust
+      domains the workload is configured to federate with.
+    subscribe:
+      operationId: fetchJWTBundles
+      summary: Stream JWT trust bundle updates
+      description: >-
+        Subscribes to a stream of JWT trust bundle updates containing the
+        JWKS (JSON Web Key Sets) for all trust domains. New messages are
+        pushed whenever a trust bundle is updated. Validators should use
+        the bundle from this stream to verify incoming JWT-SVIDs rather
+        than caching static keys.
+      message:
+        $ref: '#/components/messages/JWTBundlesResponse'
+  /spiffe.workload.SpiffeWorkloadAPI/ValidateJWTSVID:
+    description: >-
+      Request-response channel for asking the SPIFFE implementation to validate
+      a JWT-SVID on behalf of the workload. This allows workloads to delegate
+      JWT validation to the SPIRE Agent rather than implementing it themselves.
+    subscribe:
+      operationId: validateJWTSVID
+      summary: Receive JWT-SVID validation result
+      description: >-
+        Returns the validation result for a JWT-SVID token. The SPIFFE
+        implementation verifies the token's signature using the appropriate
+        trust bundle, checks the audience claim, and returns the SPIFFE ID
+        of the validated identity along with any claims present in the token.
+      message:
+        $ref: '#/components/messages/ValidateJWTSVIDResponse'
+components:
+  messages:
+    X509SVIDResponse:
+      name: X509SVIDResponse
+      title: X.509 SVID Response
+      summary: A batch of X.509-SVIDs for the workload
+      description: >-
+        Contains all X.509-SVIDs the workload is currently authorized to hold,
+        along with the trust bundles needed to validate peer identities. This
+        message is delivered as the first response on a new FetchX509SVID stream
+        and re-delivered whenever any SVID or bundle is updated.
+      contentType: application/protobuf
+      payload:
+        $ref: '#/components/schemas/X509SVIDResponse'
+    X509BundlesResponse:
+      name: X509BundlesResponse
+      title: X.509 Bundles Response
+      summary: The complete set of X.509 trust bundles
+      description: >-
+        Contains the X.509 trust bundles for the local trust domain and all
+        federated trust domains. Delivered when the subscription is established
+        and re-delivered whenever any bundle is updated.
+      contentType: application/protobuf
+      payload:
+        $ref: '#/components/schemas/X509BundlesResponse'
+    JWTSVIDResponse:
+      name: JWTSVIDResponse
+      title: JWT-SVID Response
+      summary: One or more JWT-SVIDs for the requested audience
+      description: >-
+        Contains JWT-SVIDs for all SPIFFE IDs the workload is authorized to
+        hold, issued with the requested audience claim(s). Each JWT-SVID is
+        a signed JSON Web Token containing the SPIFFE ID as the subject claim.
+      contentType: application/protobuf
+      payload:
+        $ref: '#/components/schemas/JWTSVIDResponse'
+    JWTBundlesResponse:
+      name: JWTBundlesResponse
+      title: JWT Bundles Response
+      summary: JWT trust bundles for all trust domains
+      description: >-
+        Contains the JWT signing key sets (JWKS) for all trust domains the
+        workload is configured to federate with. Used by validators to verify
+        incoming JWT-SVIDs from workloads in other trust domains.
+      contentType: application/protobuf
+      payload:
+        $ref: '#/components/schemas/JWTBundlesResponse'
+    ValidateJWTSVIDResponse:
+      name: ValidateJWTSVIDResponse
+      title: Validate JWT-SVID Response
+      summary: Result of JWT-SVID validation
+      description: >-
+        Contains the validated SPIFFE ID from the JWT-SVID and the full set
+        of JWT claims. Returned when the token signature is valid, the
+        audience matches, and the token has not expired.
+      contentType: application/protobuf
+      payload:
+        $ref: '#/components/schemas/ValidateJWTSVIDResponse'
+  schemas:
+    X509SVID:
+      type: object
+      description: >-
+        An X.509-SVID (SPIFFE Verifiable Identity Document) consisting of an
+        X.509 certificate chain with the SPIFFE ID encoded in the Subject
+        Alternative Name URI field, and the corresponding private key.
+      required:
+        - spiffe_id
+        - x509_svid
+        - x509_svid_key
+        - bundle
+      properties:
+        spiffe_id:
+          type: string
+          description: >-
+            The SPIFFE ID encoded in the certificate's Subject Alternative Name
+            URI field. Format: spiffe://{trust-domain}/{path}
+          pattern: '^spiffe://[^/]+/.+'
+        x509_svid:
+          type: string
+          description: >-
+            The DER-encoded X.509 certificate chain for this SVID. The first
+            certificate in the chain is the leaf (end-entity) certificate
+            containing the SPIFFE ID. Encoded as base64.
+          contentEncoding: base64
+        x509_svid_key:
+          type: string
+          description: >-
+            The DER-encoded private key corresponding to the leaf certificate
+            in x509_svid. Encoded as base64. The workload must keep this
+            key secret.
+          contentEncoding: base64
+        bundle:
+          type: string
+          description: >-
+            The DER-encoded X.509 trust bundle for the trust domain indicated
+            by the SPIFFE ID. Used to validate peer X.509-SVIDs from the same
+            trust domain. Encoded as base64.
+          contentEncoding: base64
+        hint:
+          type: string
+          description: >-
+            Optional workload hint provided by the SPIFFE implementation to
+            help workloads select among multiple SVIDs when they are authorized
+            to hold more than one identity.
+    X509SVIDResponse:
+      type: object
+      description: >-
+        Streamed response from the FetchX509SVID RPC containing all X.509-SVIDs
+        the workload is authorized to hold. Workloads should replace their
+        entire current SVID set when receiving this message.
+      required:
+        - svids
+      properties:
+        svids:
+          type: array
+          description: >-
+            Complete list of X.509-SVIDs the workload is currently authorized
+            to hold. Replace the workload's entire SVID set with this list.
+          items:
+            $ref: '#/components/schemas/X509SVID'
+        federated_bundles:
+          type: object
+          description: >-
+            Map from trust domain name to DER-encoded X.509 bundle for each
+            federated trust domain. Used to validate X.509-SVIDs from workloads
+            in foreign trust domains.
+          additionalProperties:
+            type: string
+            description: DER-encoded trust bundle encoded as base64
+            contentEncoding: base64
+    X509BundlesResponse:
+      type: object
+      description: >-
+        Streamed response from the FetchX509Bundles RPC containing X.509 trust
+        bundles for all trust domains.
+      required:
+        - bundles
+      properties:
+        bundles:
+          type: object
+          description: >-
+            Map from trust domain name to DER-encoded X.509 bundle. Includes
+            the local trust domain and all federated trust domains.
+          additionalProperties:
+            type: string
+            description: DER-encoded trust bundle encoded as base64
+            contentEncoding: base64
+    JWTSVID:
+      type: object
+      description: >-
+        A JWT-SVID (SPIFFE Verifiable Identity Document) encoded as a signed
+        JSON Web Token. The SPIFFE ID is the subject ("sub") claim and the
+        audience is specified in the "aud" claim.
+      required:
+        - token
+        - spiffe_id
+      properties:
+        token:
+          type: string
+          description: >-
+            The signed JWT-SVID token. A base64url-encoded JWT with three
+            dot-separated parts: header, payload, and signature.
+          pattern: '^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$'
+        spiffe_id:
+          type: string
+          description: The SPIFFE ID encoded in the token's subject claim
+          pattern: '^spiffe://[^/]+/.+'
+        expiry_time:
+          type: integer
+          description: Unix timestamp (seconds since epoch) when this JWT-SVID expires
+    JWTSVIDResponse:
+      type: object
+      description: Response from the FetchJWTSVID RPC containing JWT-SVIDs
+      required:
+        - svids
+      properties:
+        svids:
+          type: array
+          description: >-
+            One JWT-SVID for each SPIFFE ID the workload is authorized to hold,
+            all signed with the requested audience claim(s).
+          items:
+            $ref: '#/components/schemas/JWTSVID'
+    JWTBundlesResponse:
+      type: object
+      description: >-
+        Streamed response from the FetchJWTBundles RPC containing JWT signing
+        key sets for all trust domains.
+      required:
+        - bundles
+      properties:
+        bundles:
+          type: object
+          description: >-
+            Map from trust domain name to serialized JWKS (JSON Web Key Set)
+            document. Contains signing keys for validating JWT-SVIDs from
+            workloads in each trust domain.
+          additionalProperties:
+            type: string
+            description: Serialized JWKS JSON document
+    ValidateJWTSVIDResponse:
+      type: object
+      description: Response from the ValidateJWTSVID RPC
+      required:
+        - spiffe_id
+      properties:
+        spiffe_id:
+          type: string
+          description: The SPIFFE ID extracted from the validated JWT-SVID
+          pattern: '^spiffe://[^/]+/.+'
+        claims:
+          type: object
+          description: >-
+            The full set of JWT claims from the validated token as a key-value
+            map. Includes standard claims (sub, aud, exp, iat) and any custom
+            claims included by the token issuer.
+          additionalProperties: true
