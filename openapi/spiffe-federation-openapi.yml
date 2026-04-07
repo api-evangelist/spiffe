@@ -37,7 +37,7 @@ paths:
   /spiffe/v1/bundle:
     get:
       operationId: getTrustBundle
-      summary: Get trust bundle
+      summary: SPIFFE Get trust bundle
       description: >-
         Returns the current trust bundle for this SPIFFE trust domain as a
         JWKS (JSON Web Key Set) document. The trust bundle contains the root
