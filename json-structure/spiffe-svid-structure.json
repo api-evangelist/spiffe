@@ -1,0 +1,45 @@
+{
+  "title": "SPIFFE SVID Structure",
+  "description": "JSON Structure document describing the SPIFFE Verifiable Identity Document (SVID) data model for both X.509-SVIDs and JWT-SVIDs.",
+  "types": [
+    {
+      "name": "X509SVID",
+      "description": "X.509 SVID — a SPIFFE identity encoded as an X.509 certificate",
+      "fields": [
+        { "name": "spiffe_id", "type": "string", "required": true, "description": "SPIFFE URI (spiffe://{trust-domain}/{path})" },
+        { "name": "x509_svid", "type": "base64", "required": true, "description": "DER-encoded X.509 certificate chain (base64)" },
+        { "name": "x509_svid_key", "type": "base64", "required": true, "description": "DER-encoded private key (base64)" },
+        { "name": "bundle", "type": "base64", "required": true, "description": "DER-encoded trust bundle for the trust domain (base64)" },
+        { "name": "hint", "type": "string", "required": false, "description": "Optional workload hint for SVID selection" }
+      ]
+    },
+    {
+      "name": "JWTSVID",
+      "description": "JWT-SVID — a SPIFFE identity encoded as a signed JSON Web Token",
+      "fields": [
+        { "name": "token", "type": "string", "required": true, "description": "Signed JWT token (base64url.base64url.base64url)" },
+        { "name": "spiffe_id", "type": "string", "required": true, "description": "SPIFFE URI from the token subject claim" },
+        { "name": "expiry_time", "type": "integer", "required": false, "description": "Unix timestamp of token expiry" }
+      ]
+    },
+    {
+      "name": "TrustBundle",
+      "description": "SPIFFE trust bundle encoded as a JWKS document for trust domain validation",
+      "fields": [
+        { "name": "keys", "type": "array[JWK]", "required": true, "description": "Array of JWK entries representing root CA certificates" },
+        { "name": "spiffe_refresh_hint", "type": "integer", "required": true, "description": "Recommended polling interval in seconds" },
+        { "name": "spiffe_sequence", "type": "integer", "required": true, "description": "Monotonically increasing bundle sequence number" }
+      ]
+    },
+    {
+      "name": "JWK",
+      "description": "A JSON Web Key entry in a SPIFFE trust bundle",
+      "fields": [
+        { "name": "kty", "type": "enum[EC,RSA,OKP]", "required": true, "description": "Key type" },
+        { "name": "use", "type": "enum[x509-svid,jwt-svid]", "required": true, "description": "Key intended use" },
+        { "name": "kid", "type": "string", "required": true, "description": "Key identifier" },
+        { "name": "x5c", "type": "array[base64]", "required": false, "description": "X.509 certificate chain" }
+      ]
+    }
+  ]
+}

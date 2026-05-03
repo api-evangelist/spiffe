@@ -6,7 +6,8 @@ description: >-
   and heterogeneous environments through platform-agnostic, cryptographic
   identities. SPIFFE defines the SPIFFE ID URI format, the X.509 SVID and
   JWT SVID identity document formats, and the Workload API for issuing and
-  rotating identities without secrets or passwords.
+  rotating identities without secrets or passwords. SPIFFE is a graduated
+  CNCF project.
 url: https://spiffe.io/
 tags:
   - Authentication
@@ -16,14 +17,14 @@ tags:
   - Security
   - Zero Trust
 created: '2025'
-modified: '2026-03-18'
+modified: '2026-05-02'
 specificationVersion: '0.19'
 type: Index
 apis:
   - aid: spiffe:spiffe-workload-api
     name: SPIFFE Workload API
     description: >-
-      The SPIFFE Workload API is a gRPC-based interface through which workloads
+      The SPIFFE Workload API is a gRPC streaming interface through which workloads
       request and receive SPIFFE Verifiable Identity Documents (SVIDs) including
       X.509-SVIDs and JWT-SVIDs, as well as trust bundle updates. It enables
       software to obtain cryptographic identities at runtime without requiring
@@ -105,6 +106,10 @@ apis:
         url: openapi/spiffe-federation-openapi.yml
       - type: GitHubRepository
         url: https://github.com/spiffe/spiffe
+      - type: SpectralRules
+        url: rules/spiffe-rules.yml
+      - type: NaftikoCapabilities
+        url: capabilities/workload-identity.yaml
     tags:
       - Cross-Domain
       - Federation
@@ -116,13 +121,19 @@ common:
     url: json-schema/spiffe-svid-schema.json
   - type: JSON-LD
     url: json-ld/spiffe-context.jsonld
+  - type: SpectralRules
+    url: rules/spiffe-rules.yml
+  - type: Vocabulary
+    url: vocabulary/spiffe-vocabulary.yml
+  - type: NaftikoCapabilities
+    url: capabilities/workload-identity.yaml
   - type: Website
     url: https://spiffe.io/
   - type: Documentation
     url: https://spiffe.io/docs/latest/
-  - type: Getting Started
+  - type: GettingStarted
     url: https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/
-  - type: GitHub Organization
+  - type: GitHubOrganization
     url: https://github.com/spiffe
   - type: GitHubRepository
     url: https://github.com/spiffe/spiffe
@@ -134,7 +145,7 @@ common:
     url: https://spiffe.io/blog/
   - type: Security
     url: https://github.com/spiffe/spiffe/blob/main/SECURITY.md
-  - type: Stack Overflow
+  - type: StackOverflow
     url: https://stackoverflow.com/questions/tagged/spiffe
 maintainers:
   - FN: Kin Lane

@@ -1,0 +1,39 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://example.org/spiffe/v1/bundle",
+    "headers": {
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "keys": [
+        {
+          "kty": "EC",
+          "use": "x509-svid",
+          "kid": "C6vs25welZOx6WksNYfbMfiw9l96pMnD",
+          "crv": "P-256",
+          "x": "kKh8EvJlNpXu5JvLLIGJExj5Sk3BAdXJLwzpFLLG2cY",
+          "y": "MH_F8Jm_4U1r1-B2UMZkl4r4-OlVdmWlLVGGTMN9h4g",
+          "x5c": [
+            "MIIBvzCCAWWgAwIBAgIRAIXPr38...base64encodedcert=="
+          ]
+        },
+        {
+          "kty": "RSA",
+          "use": "jwt-svid",
+          "kid": "Wx3y4z5a6b7c8d9e0f1g2h3i4j5k",
+          "n": "sFBpf3J-example-modulus-base64url",
+          "e": "AQAB"
+        }
+      ],
+      "spiffe_refresh_hint": 2592000,
+      "spiffe_sequence": 1714521600
+    }
+  }
+}

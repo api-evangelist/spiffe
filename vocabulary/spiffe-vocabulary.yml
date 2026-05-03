@@ -1,0 +1,119 @@
+vocabulary:
+  name: SPIFFE Vocabulary
+  description: >-
+    Normative vocabulary for the SPIFFE (Secure Production Identity Framework for Everyone)
+    standard, covering identity document formats, workload authentication, trust domains,
+    and federation terminology as defined in the SPIFFE specifications.
+  version: "1.0"
+  created: "2026-05-02"
+  modified: "2026-05-02"
+  tags:
+    - Identity
+    - Security
+    - Zero Trust
+    - Authentication
+
+terms:
+  - term: SPIFFE
+    definition: >-
+      Secure Production Identity Framework for Everyone — a set of open-source
+      standards for securely identifying software systems in dynamic and heterogeneous
+      environments through platform-agnostic, cryptographic identities. SPIFFE is a
+      graduated CNCF project.
+    synonyms: [Secure Production Identity Framework]
+    related: [SPIRE, SVID, Trust Domain]
+
+  - term: SPIFFE ID
+    definition: >-
+      A URI uniquely identifying a workload within a SPIFFE trust domain. The format
+      is spiffe://{trust-domain}/{path}, where trust-domain is a DNS name and path
+      identifies the specific workload within that domain.
+    synonyms: [Identity, Workload Identity]
+    related: [SVID, Trust Domain, URI]
+
+  - term: SVID
+    definition: >-
+      SPIFFE Verifiable Identity Document — a cryptographically signed document
+      that proves a workload's SPIFFE ID. SVIDs come in two forms: X.509-SVIDs
+      (X.509 certificates with a SPIFFE ID in the Subject Alternative Name) and
+      JWT-SVIDs (signed JSON Web Tokens with a SPIFFE ID as the subject claim).
+    synonyms: [Identity Document, Verifiable Identity]
+    related: [SPIFFE ID, X.509-SVID, JWT-SVID, Trust Domain]
+
+  - term: X.509-SVID
+    definition: >-
+      A SPIFFE Verifiable Identity Document encoded as an X.509 certificate. The
+      SPIFFE ID is embedded in the Subject Alternative Name URI field. X.509-SVIDs
+      enable mutual TLS authentication between workloads using standard PKI validation.
+    related: [SVID, mTLS, Certificate, PKI]
+
+  - term: JWT-SVID
+    definition: >-
+      A SPIFFE Verifiable Identity Document encoded as a signed JSON Web Token.
+      JWT-SVIDs are short-lived (typically 5-minute TTL) and suitable for HTTP
+      header-based authentication between services or cross-domain identity assertion.
+    related: [SVID, JWT, Authentication, Short-Lived]
+
+  - term: Trust Domain
+    definition: >-
+      A DNS-named administrative boundary within which SPIFFE identities are issued
+      and trusted. Each trust domain has its own root CA and issues SVIDs only for
+      workloads within its boundary. The trust domain name appears in every SPIFFE ID
+      issued by that domain (e.g., spiffe://example.org/...).
+    synonyms: [Trust Zone, Identity Domain]
+    related: [SPIFFE ID, Trust Bundle, Federation]
+
+  - term: Trust Bundle
+    definition: >-
+      The set of root CA certificates for a SPIFFE trust domain, encoded as a
+      JWKS (JSON Web Key Set) document. Other trust domains fetch trust bundles
+      to validate SVIDs issued by that domain. Bundles include a refresh hint
+      and sequence number for synchronization.
+    synonyms: [Root CA Bundle, CA Bundle, JWKS Bundle]
+    related: [Trust Domain, Federation, Root CA, JWKS]
+
+  - term: Workload API
+    definition: >-
+      The SPIFFE Workload API is a gRPC-based interface through which workloads
+      request and receive SVIDs and trust bundle updates at runtime. Implemented
+      by SPIRE Agent and exposed via a Unix domain socket. Workloads never handle
+      private keys directly — the agent manages them.
+    related: [SPIRE, SVID, gRPC, Workload]
+
+  - term: SPIRE
+    definition: >-
+      The SPIFFE Runtime Environment — the reference implementation of the SPIFFE
+      standard. SPIRE consists of a Server (issues SVIDs) and Agent (runs alongside
+      workloads to expose the Workload API). SPIRE is a graduated CNCF project.
+    synonyms: [SPIFFE Runtime Environment]
+    related: [SPIFFE, Workload API, SVID]
+
+  - term: Federation
+    definition: >-
+      The mechanism by which two SPIFFE trust domains establish mutual trust,
+      allowing workloads in different domains to authenticate each other. Each
+      domain exposes a bundle endpoint that the other polls to retrieve trust
+      bundle updates for cross-domain SVID validation.
+    related: [Trust Domain, Trust Bundle, Bundle Endpoint]
+
+  - term: Bundle Endpoint
+    definition: >-
+      An HTTP endpoint exposed by a SPIFFE trust domain at a well-known URL
+      (/spiffe/v1/bundle) that returns the trust domain's current trust bundle
+      as a JWKS document. Publicly accessible without authentication per the spec.
+    related: [Federation, Trust Bundle, JWKS]
+
+  - term: Workload Attestation
+    definition: >-
+      The process by which the SPIRE Agent verifies the identity of a workload
+      requesting an SVID. SPIRE uses node and workload attestors (e.g., Kubernetes,
+      Unix, AWS) to verify the workload matches its registered identity.
+    related: [SPIRE, SVID, Attestor]
+
+  - term: mTLS
+    definition: >-
+      Mutual TLS — a transport security protocol where both client and server
+      authenticate each other using X.509 certificates. SPIFFE X.509-SVIDs are
+      the primary mechanism for mTLS authentication in SPIFFE-enabled environments.
+    synonyms: [Mutual TLS, Client Certificate Authentication]
+    related: [X.509-SVID, Authentication, TLS]

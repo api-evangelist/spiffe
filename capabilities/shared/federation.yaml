@@ -1,0 +1,76 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "SPIFFE Federation Bundle Endpoint API"
+  description: >-
+    Shared capability definition for the SPIFFE Federation Bundle Endpoint HTTP REST API.
+    Provides access to trust bundle retrieval for cross-domain SPIFFE identity federation.
+    The bundle endpoint allows foreign trust domains to fetch root CA certificates encoded
+    as JWKS documents to enable cross-domain workload authentication.
+  tags:
+    - SPIFFE
+    - Identity
+    - Security
+    - Zero Trust
+    - Federation
+    - Trust Bundle
+  created: "2026-05-02"
+  modified: "2026-05-02"
+
+capability:
+  consumes:
+    - type: http
+      namespace: spiffe-federation
+      baseUri: https://example.org
+      description: "SPIFFE Trust Domain Bundle Endpoint — publicly accessible, no authentication required"
+      resources:
+        - name: bundle
+          path: /spiffe/v1/bundle
+          description: "SPIFFE trust bundle endpoint"
+          operations:
+            - name: get-trust-bundle
+              method: GET
+              description: "Retrieve the trust bundle for this SPIFFE trust domain as a JWKS document"
+              inputParameters:
+                - name: Accept
+                  in: header
+                  type: string
+                  required: false
+                  description: "Accepted response format (application/json)"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+
+  exposes:
+    - type: rest
+      port: 8100
+      namespace: spiffe-federation-rest
+      resources:
+        - path: /v1/bundle
+          name: trust-bundle
+          description: "SPIFFE trust bundle retrieval"
+          operations:
+            - method: GET
+              name: get-trust-bundle
+              description: "Retrieve SPIFFE trust bundle as JWKS"
+              call: "spiffe-federation.get-trust-bundle"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9100
+      namespace: spiffe-federation-mcp
+      transport: http
+      tools:
+        - name: get-trust-bundle
+          description: "Retrieve the SPIFFE trust bundle (JWKS) for a trust domain to validate SVIDs"
+          hints:
+            readOnly: true
+            openWorld: false
+          call: "spiffe-federation.get-trust-bundle"
+          outputParameters:
+            - type: object
+              mapping: "$."

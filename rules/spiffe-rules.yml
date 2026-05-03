@@ -1,0 +1,72 @@
+extends: spectral:oas
+rules:
+  spiffe-operation-summary-title-case:
+    description: All operation summaries must use Title Case
+    message: Operation summary "{{value}}" should be in Title Case
+    severity: warn
+    given: "$.paths[*][*].summary"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[A-Z][a-zA-Z0-9]*([ ][A-Z][a-zA-Z0-9]*)*$"
+
+  spiffe-tags-title-case:
+    description: All tags must use Title Case
+    message: Tag "{{value}}" should be in Title Case
+    severity: warn
+    given: "$.tags[*].name"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[A-Z][a-zA-Z0-9]*([ ][A-Z][a-zA-Z0-9]*)*$"
+
+  spiffe-operation-id:
+    description: All operations must have an operationId
+    message: Operation must have an operationId
+    severity: error
+    given: "$.paths[*][get,post,put,patch,delete]"
+    then:
+      field: operationId
+      function: truthy
+
+  spiffe-spiffe-path-versioned:
+    description: SPIFFE endpoints must use the /spiffe/v1/ prefix
+    message: SPIFFE bundle endpoint paths should use /spiffe/v1/ prefix per the specification
+    severity: error
+    given: "$.paths[*]~"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^/spiffe/v[0-9]+"
+
+  spiffe-response-content-type:
+    description: SPIFFE endpoints must return application/json
+    message: SPIFFE bundle endpoint must return application/json content type
+    severity: error
+    given: "$.paths[*].get.responses.200.content"
+    then:
+      field: "application/json"
+      function: truthy
+
+  spiffe-trust-bundle-schema:
+    description: Trust bundle response must include required SPIFFE fields
+    message: Trust bundle response must include keys, spiffe_refresh_hint, and spiffe_sequence
+    severity: error
+    given: "$.components.schemas.TrustBundle.required"
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: array
+          contains:
+            type: string
+            enum: [keys, spiffe_refresh_hint, spiffe_sequence]
+
+  spiffe-no-auth-on-bundle-endpoint:
+    description: SPIFFE bundle endpoint must be publicly accessible (no auth)
+    message: The SPIFFE trust bundle endpoint should not require authentication per the specification
+    severity: warn
+    given: "$.paths./spiffe/v1/bundle.get"
+    then:
+      field: security
+      function: falsy
