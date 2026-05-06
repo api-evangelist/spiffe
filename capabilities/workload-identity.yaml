@@ -1,59 +1,74 @@
-naftiko: "1.0.0-alpha1"
-
+naftiko: 1.0.0-alpha2
 info:
-  label: "SPIFFE Workload Identity"
-  description: >-
-    Workflow capability for SPIFFE-based workload identity and federation operations.
-    Combines the SPIFFE Federation Bundle Endpoint for cross-domain trust bundle
-    retrieval with identity verification workflows. Designed for platform engineers
-    and security teams implementing zero-trust workload authentication using
-    SPIFFE/SPIRE identity infrastructure.
+  label: SPIFFE Workload Identity
+  description: Workflow capability for SPIFFE-based workload identity and federation operations. Combines the SPIFFE Federation
+    Bundle Endpoint for cross-domain trust bundle retrieval with identity verification workflows. Designed for platform engineers
+    and security teams implementing zero-trust workload authentication using SPIFFE/SPIRE identity infrastructure.
   tags:
-    - SPIFFE
-    - Identity
-    - Security
-    - Zero Trust
-    - Federation
-    - Workload Identity
-    - mTLS
-  created: "2026-05-02"
-  modified: "2026-05-02"
-
+  - SPIFFE
+  - Identity
+  - Security
+  - Zero Trust
+  - Federation
+  - Workload Identity
+  - mTLS
+  created: '2026-05-02'
+  modified: '2026-05-06'
 capability:
   consumes:
-    - import: spiffe-federation
-      location: ./shared/federation.yaml
-
+  - type: http
+    namespace: spiffe-federation
+    baseUri: https://example.org
+    description: SPIFFE Trust Domain Bundle Endpoint — publicly accessible, no authentication required
+    resources:
+    - name: bundle
+      path: /spiffe/v1/bundle
+      description: SPIFFE trust bundle endpoint
+      operations:
+      - name: get-trust-bundle
+        method: GET
+        description: Retrieve the trust bundle for this SPIFFE trust domain as a JWKS document
+        inputParameters:
+        - name: Accept
+          in: header
+          type: string
+          required: false
+          description: Accepted response format (application/json)
+        outputRawFormat: json
+        outputParameters:
+        - name: result
+          type: object
+          value: $.
   exposes:
-    - type: rest
-      port: 8080
-      namespace: spiffe-workload-identity-api
-      description: "Unified REST API for SPIFFE workload identity and federation workflows."
-      resources:
-        - path: /v1/bundle
-          name: trust-bundle
-          description: "SPIFFE trust bundle management"
-          operations:
-            - method: GET
-              name: get-trust-bundle
-              description: "Retrieve the SPIFFE trust bundle for a trust domain"
-              call: "spiffe-federation.get-trust-bundle"
-              outputParameters:
-                - type: object
-                  mapping: "$."
-
-    - type: mcp
-      port: 9090
-      namespace: spiffe-workload-identity-mcp
-      transport: http
-      description: "MCP server for AI-assisted SPIFFE workload identity and federation management."
-      tools:
-        - name: get-trust-bundle
-          description: "Retrieve the SPIFFE trust bundle (JWKS) for a given trust domain. Used to validate X.509-SVIDs and JWT-SVIDs issued by that trust domain."
-          hints:
-            readOnly: true
-            openWorld: false
-          call: "spiffe-federation.get-trust-bundle"
-          outputParameters:
-            - type: object
-              mapping: "$."
+  - type: rest
+    port: 8080
+    namespace: spiffe-workload-identity-api
+    description: Unified REST API for SPIFFE workload identity and federation workflows.
+    resources:
+    - path: /v1/bundle
+      name: trust-bundle
+      description: SPIFFE trust bundle management
+      operations:
+      - method: GET
+        name: get-trust-bundle
+        description: Retrieve the SPIFFE trust bundle for a trust domain
+        call: spiffe-federation.get-trust-bundle
+        outputParameters:
+        - type: object
+          mapping: $.
+  - type: mcp
+    port: 9090
+    namespace: spiffe-workload-identity-mcp
+    transport: http
+    description: MCP server for AI-assisted SPIFFE workload identity and federation management.
+    tools:
+    - name: get-trust-bundle
+      description: Retrieve the SPIFFE trust bundle (JWKS) for a given trust domain. Used to validate X.509-SVIDs and JWT-SVIDs
+        issued by that trust domain.
+      hints:
+        readOnly: true
+        openWorld: false
+      call: spiffe-federation.get-trust-bundle
+      outputParameters:
+      - type: object
+        mapping: $.
