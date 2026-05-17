@@ -119,7 +119,7 @@ apis:
 common:
   - type: JSONSchema
     url: json-schema/spiffe-svid-schema.json
-  - type: JSON-LD
+  - type: JSONLD
     url: json-ld/spiffe-context.jsonld
   - type: SpectralRules
     url: rules/spiffe-rules.yml
