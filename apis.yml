@@ -106,6 +106,8 @@ apis:
       - Security
       - Trust Domain
 common:
+  - type: DomainSecurity
+    url: security/spiffe-domain-security.yml
   - type: LinkedIn
     url: https://www.linkedin.com/company/spiffe-secure-production-identity-framework-for-everyone
   - type: JSONSchema
