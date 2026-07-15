@@ -106,6 +106,8 @@ apis:
       - Security
       - Trust Domain
 common:
+  - type: AgenticAccess
+    url: agentic-access/spiffe-agentic-access.yml
   - type: DomainSecurity
     url: security/spiffe-domain-security.yml
   - type: LinkedIn
