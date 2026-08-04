@@ -1,0 +1,14 @@
+{
+  "provider": "spiffe",
+  "sources": [
+    "spiffe-bundle-api-openapi.yml"
+  ],
+  "outputs": [
+    "spiffe-bundle-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}

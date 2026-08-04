@@ -1,0 +1,188 @@
+openapi: 3.1.0
+info:
+  title: SPIFFE Federation Bundle Endpoint API
+  description: >-
+    The SPIFFE Federation Bundle Endpoint is an HTTP REST API that SPIFFE
+    implementations expose to allow foreign trust domains to retrieve the
+    current trust bundle (set of root CA certificates) for the serving trust
+    domain. Trust bundles are used to validate X.509-SVIDs and JWT-SVIDs
+    issued by a trust domain. The endpoint follows the SPIFFE Trust Domain
+    and Bundle specification and returns a JSON document containing the JWKS
+    (JSON Web Key Set) representation of the trust bundle's root CAs, enabling
+    automated cross-domain trust establishment and rotation without manual
+    certificate distribution.
+  version: '1.0'
+  contact:
+    name: SPIFFE Community
+    url: https://spiffe.io/community/
+  termsOfService: https://github.com/spiffe/spiffe/blob/main/LICENSE
+externalDocs:
+  description: SPIFFE Trust Domain and Bundle Specification
+  url: https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Trust_Domain_and_Bundle.md
+servers:
+  - url: https://{trust-domain}
+    description: SPIFFE Trust Domain Bundle Endpoint Server
+    variables:
+      trust-domain:
+        default: example.org
+        description: >-
+          The DNS name of the trust domain serving the bundle endpoint.
+          The trust domain name is used as the server hostname.
+tags:
+  - name: Bundle
+    description: >-
+      SPIFFE trust bundle retrieval operations for fetching root CA certificates
+      used to validate SVIDs issued by a trust domain
+paths:
+  /spiffe/v1/bundle:
+    get:
+      operationId: getTrustBundle
+      summary: SPIFFE Get trust bundle
+      description: >-
+        Returns the current trust bundle for this SPIFFE trust domain as a
+        JWKS (JSON Web Key Set) document. The trust bundle contains the root
+        CA certificates that are used to validate X.509-SVIDs and JWT-SVIDs
+        issued by this trust domain. Foreign SPIFFE implementations poll this
+        endpoint to stay synchronized with trust bundle updates, enabling
+        cross-domain workload authentication. The response is a standard JWKS
+        document where each key entry represents a root CA certificate encoded
+        as an X.509 certificate in the x5c claim.
+      tags:
+        - Bundle
+      parameters:
+        - name: Accept
+          in: header
+          description: >-
+            Requested response format. The bundle endpoint must return
+            application/json. Clients may include this header to indicate
+            they accept JSON responses.
+          schema:
+            type: string
+            default: application/json
+      responses:
+        '200':
+          description: Trust bundle retrieved successfully
+          headers:
+            Content-Type:
+              description: Always application/json for SPIFFE bundle endpoints
+              schema:
+                type: string
+                enum: [application/json]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrustBundle'
+        '404':
+          description: Trust bundle not found or trust domain not configured
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    TrustBundle:
+      type: object
+      description: >-
+        A SPIFFE trust bundle encoded as a JWKS (JSON Web Key Set) document.
+        The trust bundle contains the root CA certificates that validators use
+        to authenticate X.509-SVIDs and JWT-SVIDs issued by this trust domain.
+        The keys array contains one entry per root CA certificate in the trust
+        bundle.
+      required:
+        - keys
+        - spiffe_refresh_hint
+        - spiffe_sequence
+      properties:
+        keys:
+          type: array
+          description: >-
+            Array of JSON Web Key (JWK) entries representing root CA
+            certificates in the trust bundle. Each entry corresponds to
+            one root certificate authority that can be used to validate
+            SVIDs from this trust domain.
+          items:
+            $ref: '#/components/schemas/JWK'
+        spiffe_refresh_hint:
+          type: integer
+          description: >-
+            Recommended polling interval in seconds for trust bundle consumers.
+            Consumers should re-fetch the bundle at least this frequently to
+            stay synchronized with trust bundle updates and certificate rotations.
+          minimum: 0
+        spiffe_sequence:
+          type: integer
+          description: >-
+            Monotonically increasing sequence number for the trust bundle.
+            Consumers can use this to detect updates and avoid re-processing
+            an unchanged bundle. The sequence number increments with each
+            trust bundle update.
+          minimum: 0
+    JWK:
+      type: object
+      description: >-
+        A JSON Web Key representing a single root CA certificate in the SPIFFE
+        trust bundle. For X.509 trust bundles the kty is EC or RSA and the x5c
+        array contains the DER-encoded certificate chain. For JWT signing keys
+        used in JWT-SVID validation, additional JWK fields are present.
+      required:
+        - kty
+        - use
+        - kid
+      properties:
+        kty:
+          type: string
+          description: Key type identifying the cryptographic algorithm family
+          enum: [EC, RSA, OKP]
+        use:
+          type: string
+          description: >-
+            Intended use of the key. "x509-svid" for X.509 SVID validation
+            keys and "jwt-svid" for JWT-SVID signing and validation keys.
+          enum: [x509-svid, jwt-svid]
+        kid:
+          type: string
+          description: >-
+            Key identifier uniquely identifying this key within the trust bundle.
+            Used to select the correct key when validating an SVID.
+        crv:
+          type: string
+          description: Elliptic curve name for EC keys
+          enum: [P-256, P-384, P-521]
+        x:
+          type: string
+          description: X coordinate for EC keys encoded as base64url
+        y:
+          type: string
+          description: Y coordinate for EC keys encoded as base64url
+        n:
+          type: string
+          description: RSA modulus encoded as base64url for RSA keys
+        e:
+          type: string
+          description: RSA public exponent encoded as base64url for RSA keys
+        x5c:
+          type: array
+          description: >-
+            X.509 certificate chain for this key. The first element is the
+            certificate for the key itself, followed by any intermediate CA
+            certificates. Each element is DER-encoded and base64-encoded
+            (not base64url).
+          items:
+            type: string
+            description: A DER-encoded X.509 certificate in base64 encoding
+    Error:
+      type: object
+      description: Error response from the SPIFFE bundle endpoint
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+        message:
+          type: string
+          description: Human-readable error message
