@@ -113,6 +113,9 @@ apis:
   - type: SpectralRules
     url: rules/spiffe-rules.yml
 common:
+  - type: License
+    name: Apache-2.0
+    url: https://github.com/spiffe/spiffe/blob/main/LICENSE
   - type: AgenticAccess
     url: agentic-access/spiffe-agentic-access.yml
   - type: DomainSecurity
