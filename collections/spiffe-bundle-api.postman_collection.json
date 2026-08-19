@@ -1,0 +1,235 @@
+{
+  "item": [
+    {
+      "id": "aef21963-d45c-4999-b63b-cb28f30fd5dd",
+      "name": "Bundle",
+      "description": {
+        "content": "SPIFFE trust bundle retrieval operations for fetching root CA certificates used to validate SVIDs issued by a trust domain",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "d01f90ab-436f-4f03-9bd6-9dc03b88b2c9",
+          "name": "SPIFFE Get trust bundle",
+          "request": {
+            "name": "SPIFFE Get trust bundle",
+            "description": {
+              "content": "Returns the current trust bundle for this SPIFFE trust domain as a JWKS (JSON Web Key Set) document. The trust bundle contains the root CA certificates that are used to validate X.509-SVIDs and JWT-SVIDs issued by this trust domain. Foreign SPIFFE implementations poll this endpoint to stay synchronized with trust bundle updates, enabling cross-domain workload authentication. The response is a standard JWKS document where each key entry represents a root CA certificate encoded as an X.509 certificate in the x5c claim.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "spiffe",
+                "v1",
+                "bundle"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "description": "The DNS name of the trust domain serving the bundle endpoint. The trust domain name is used as the server hostname.",
+                  "type": "any",
+                  "value": "{{trust-domain}}",
+                  "key": "trust-domain"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "55a380ac-935b-4734-97a1-77e4fc35d69d",
+              "name": "Trust bundle retrieved successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "spiffe",
+                    "v1",
+                    "bundle"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": "The DNS name of the trust domain serving the bundle endpoint. The trust domain name is used as the server hostname.",
+                      "type": "any",
+                      "value": "{{trust-domain}}",
+                      "key": "trust-domain"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Requested response format. The bundle endpoint must return application/json. Clients may include this header to indicate they accept JSON responses.",
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"keys\": [\n    {\n      \"kty\": \"OKP\",\n      \"use\": \"jwt-svid\",\n      \"kid\": \"string\",\n      \"crv\": \"P-256\",\n      \"x\": \"string\",\n      \"y\": \"string\",\n      \"n\": \"string\",\n      \"e\": \"string\",\n      \"x5c\": [\n        \"string\",\n        \"string\"\n      ]\n    },\n    {\n      \"kty\": \"RSA\",\n      \"use\": \"jwt-svid\",\n      \"kid\": \"string\",\n      \"crv\": \"P-521\",\n      \"x\": \"string\",\n      \"y\": \"string\",\n      \"n\": \"string\",\n      \"e\": \"string\",\n      \"x5c\": [\n        \"string\",\n        \"string\"\n      ]\n    }\n  ],\n  \"spiffe_refresh_hint\": 1950,\n  \"spiffe_sequence\": 6473\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "4e131be6-8554-4142-b601-21b83746b620",
+              "name": "Trust bundle not found or trust domain not configured",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "spiffe",
+                    "v1",
+                    "bundle"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": "The DNS name of the trust domain serving the bundle endpoint. The trust domain name is used as the server hostname.",
+                      "type": "any",
+                      "value": "{{trust-domain}}",
+                      "key": "trust-domain"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Requested response format. The bundle endpoint must return application/json. Clients may include this header to indicate they accept JSON responses.",
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 1709,\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d0e30b40-6ca3-4cd9-9288-c06176a7d010",
+              "name": "Internal server error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "spiffe",
+                    "v1",
+                    "bundle"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "description": "The DNS name of the trust domain serving the bundle endpoint. The trust domain name is used as the server hostname.",
+                      "type": "any",
+                      "value": "{{trust-domain}}",
+                      "key": "trust-domain"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Requested response format. The bundle endpoint must return application/json. Clients may include this header to indicate they accept JSON responses.",
+                    "key": "Accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 1709,\n  \"message\": \"string\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "description": {
+        "content": "The DNS name of the trust domain serving the bundle endpoint. The trust domain name is used as the server hostname.",
+        "type": "text/plain"
+      },
+      "type": "any",
+      "value": "example.org",
+      "key": "trust-domain"
+    },
+    {
+      "type": "string",
+      "value": "https://{{trust-domain}}",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "4f373494-5012-4e45-988a-e449979bae5b",
+    "name": "SPIFFE Federation Endpoint Bundle API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "The SPIFFE Federation Bundle Endpoint is an HTTP REST API that SPIFFE implementations expose to allow foreign trust domains to retrieve the current trust bundle (set of root CA certificates) for the serving trust domain. Trust bundles are used to validate X.509-SVIDs and JWT-SVIDs issued by a trust domain. The endpoint follows the SPIFFE Trust Domain and Bundle specification and returns a JSON document containing the JWKS (JSON Web Key Set) representation of the trust bundle's root CAs, enabling automated cross-domain trust establishment and rotation without manual certificate distribution.\n\nContact Support:\n Name: SPIFFE Community",
+      "type": "text/plain"
+    }
+  }
+}
