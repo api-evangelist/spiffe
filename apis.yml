@@ -21,6 +21,13 @@ description: >-
 url: https://spiffe.io/
 tags:
   - Authentication
+  - Cloud-Native
+  - Graduated
+  - Identity
+  - Security
+  - Zero Trust
+tags_raw:
+  - Authentication
   - Cloud Native
   - Graduated
   - Identity
