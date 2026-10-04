@@ -133,6 +133,9 @@ apis:
   - type: SpectralRules
     url: rules/spiffe-rules.yml
 common:
+  - type: CapabilityMap
+    url: capabilities/spiffe-capability-edges.yml
+    name: SPIFFE Business Capability Map
   - type: IssueTracker
     url: https://github.com/spiffe/spiffe/issues
   - type: CodeOfConduct
