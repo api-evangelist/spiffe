@@ -60,16 +60,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    Error:
-      type: object
-      description: Error response from the SPIFFE bundle endpoint
-      properties:
-        code:
-          type: integer
-          description: HTTP status code
-        message:
-          type: string
-          description: Human-readable error message
     JWK:
       type: object
       description: A JSON Web Key representing a single root CA certificate in the SPIFFE trust bundle. For X.509 trust bundles the kty is EC or RSA and the x5c array contains the DER-encoded certificate chain. For JWT signing keys used in JWT-SVID validation, additional JWK fields are present.
@@ -140,6 +130,16 @@ components:
           type: integer
           description: Monotonically increasing sequence number for the trust bundle. Consumers can use this to detect updates and avoid re-processing an unchanged bundle. The sequence number increments with each trust bundle update.
           minimum: 0
+    Error:
+      type: object
+      description: Error response from the SPIFFE bundle endpoint
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+        message:
+          type: string
+          description: Human-readable error message
 externalDocs:
   description: SPIFFE Trust Domain and Bundle Specification
   url: https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Trust_Domain_and_Bundle.md
