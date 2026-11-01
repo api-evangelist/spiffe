@@ -1,4 +1,4 @@
-# SPIFFE (spiffe)
+# SPIFFE
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,137 +66,174 @@
 
 Secure Production Identity Framework for Everyone (SPIFFE) is a set of open-source standards for securely identifying software systems in dynamic and heterogeneous environments through platform-agnostic, cryptographic identities. SPIFFE defines the SPIFFE ID URI format, the X.509 SVID and JWT SVID identity document formats, and the Workload API for issuing and rotating identities without secrets or passwords. SPIFFE is a graduated CNCF project.
 
-**APIs.json:** [https://spiffe.io/](https://spiffe.io/)
+**Areas:** Authentication · Cloud-Native · Graduated · Identity · Security · Zero Trust
 
-## Scope
+## SPIFFE on APIs.io
 
-- **Type:** Index
+Everything profiled for SPIFFE is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/spiffe/](https://apis.io/providers/spiffe/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (4)
 
-- Authentication
-- Cloud Native
-- Graduated
-- Identity
-- Security
-- Zero Trust
+- [SPIFFE Workload API](https://apis.io/apis/spiffe/spiffe-workload-api/) — The SPIFFE Workload API is a gRPC streaming interface through which workloads request and receive SPIFFE Verifiable Identity Documents (SVIDs) including…
+- [SPIFFE X.509 SVID](https://apis.io/apis/spiffe/spiffe-x509-svid-api/) — The SPIFFE X.509 SVID (SPIFFE Verifiable Identity Document) is a standard for encoding SPIFFE identities into X.509 certificates. The Subject Alternative…
+- [SPIFFE JWT SVID](https://apis.io/apis/spiffe/spiffe-jwt-svid-api/) — The SPIFFE JWT SVID standard defines a format for encoding SPIFFE identities as JSON Web Tokens. JWT-SVIDs are used in scenarios where X.509 certificates…
+- [SPIFFE Bundle API](https://apis.io/apis/spiffe/spiffe-bundle-api/) — SPIFFE trust bundle retrieval operations for fetching root CA certificates used to validate SVIDs issued by a trust domain
 
-## Timestamps
+### Published properties
 
-- **Created:** 2025
-- **Modified:** 2026-05-19
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### AsyncAPI (1)
 
-### SPIFFE Workload API
+Event-driven and webhook contracts.
 
-The SPIFFE Workload API is a gRPC streaming interface through which workloads request and receive SPIFFE Verifiable Identity Documents (SVIDs) including X.509-SVIDs and JWT-SVIDs, as well as trust bundle updates. It enables software to obtain cryptographic identities at runtime without requiring secrets to be embedded in configuration or code.
+- [SPIFFE Workload API Events](https://apis.io/asyncapis/spiffe/spiffe-workload-asyncapi/)
 
-- **Human URL:** [https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Workload_API.md](https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Workload_API.md)
+#### Event channels (5)
 
-#### Tags
+Individual events and webhooks the provider emits.
 
-- gRPC
-- Identity
-- JWT
-- Workload
-- X.509
+- [/spiffe.workload.SpiffeWorkloadAPI/FetchJWTBundles](https://apis.io/channels/spiffe/spiffe-workload-spiffeworkloadapi-fetchjwtbundles/)
+- [/spiffe.workload.SpiffeWorkloadAPI/FetchJWTSVID](https://apis.io/channels/spiffe/spiffe-workload-spiffeworkloadapi-fetchjwtsvid/)
+- [/spiffe.workload.SpiffeWorkloadAPI/FetchX509Bundles](https://apis.io/channels/spiffe/spiffe-workload-spiffeworkloadapi-fetchx509bundles/)
+- [/spiffe.workload.SpiffeWorkloadAPI/FetchX509SVID](https://apis.io/channels/spiffe/spiffe-workload-spiffeworkloadapi-fetchx509svid/)
+- [/spiffe.workload.SpiffeWorkloadAPI/ValidateJWTSVID](https://apis.io/channels/spiffe/spiffe-workload-spiffeworkloadapi-validatejwtsvid/)
 
-#### Properties
+#### Agentic access (1)
 
-- [Documentation](https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/)
-- [Reference](https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Workload_API.md)
-- [AsyncAPI](asyncapi/spiffe-workload-asyncapi.yml) — [AsyncAPI Specification](https://www.asyncapi.com/docs/reference/specification/latest)
-- [GitHub Repository](https://github.com/spiffe/spiffe)
-- [Postman Collection](collections/spiffe-federation.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/spiffe-federation.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+Which operations an agent can call, which act, and which need a human in the loop.
 
-### SPIFFE X.509 SVID
+- [Spiffe Agentic Access](https://apis.io/agentic-access/spiffe/spiffe-agentic-access/)
 
-The SPIFFE X.509 SVID (SPIFFE Verifiable Identity Document) is a standard for encoding SPIFFE identities into X.509 certificates. The Subject Alternative Name field carries the SPIFFE ID URI, enabling mutual TLS authentication between workloads using standard X.509 certificate validation libraries.
+#### JSON Schema (1)
 
-- **Human URL:** [https://github.com/spiffe/spiffe/blob/main/standards/X509-SVID.md](https://github.com/spiffe/spiffe/blob/main/standards/X509-SVID.md)
+The data models the API reads and writes.
 
-#### Tags
+- [SPIFFE Identity Documents](https://apis.io/schemas/spiffe/spiffe-svid/)
 
-- Certificate
-- Identity
-- mTLS
-- Security
-- X.509
+#### JSON Structure (1)
 
-#### Properties
+Data models expressed in JSON Structure.
 
-- [Documentation](https://spiffe.io/docs/latest/spiffe-about/svid/)
-- [Reference](https://github.com/spiffe/spiffe/blob/main/standards/X509-SVID.md)
-- [GitHub Repository](https://github.com/spiffe/spiffe)
-- [Postman Collection](collections/spiffe-federation.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/spiffe-federation.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+- [Spiffe Svid Structure](https://apis.io/json-structure/spiffe/spiffe-svid-structure/)
 
-### SPIFFE JWT SVID
+#### JSON-LD (1)
 
-The SPIFFE JWT SVID standard defines a format for encoding SPIFFE identities as JSON Web Tokens. JWT-SVIDs are used in scenarios where X.509 certificates are not practical, such as HTTP header-based authentication between services or for passing identity across trust domain boundaries.
+Linked-data contexts for the provider's vocabulary.
 
-- **Human URL:** [https://github.com/spiffe/spiffe/blob/main/standards/JWT-SVID.md](https://github.com/spiffe/spiffe/blob/main/standards/JWT-SVID.md)
+- [Spiffe Context](https://apis.io/jsonld/spiffe/spiffe-context/)
 
-#### Tags
+#### Vocabulary (1)
 
-- Authentication
-- Identity
-- JWT
-- Security
+The provider's domain terms, defined.
 
-#### Properties
+- [SPIFFE Vocabulary](https://apis.io/vocabularies/spiffe/spiffe-vocabulary/)
 
-- [Documentation](https://spiffe.io/docs/latest/spiffe-about/svid/)
-- [Reference](https://github.com/spiffe/spiffe/blob/main/standards/JWT-SVID.md)
-- [GitHub Repository](https://github.com/spiffe/spiffe)
-- [Postman Collection](collections/spiffe-federation.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/spiffe-federation.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+#### Examples (1)
 
-### SPIFFE Federation API
+Example requests and responses.
 
-The SPIFFE Federation API defines how SPIFFE trust domains exchange trust bundle information to enable cross-domain workload authentication. It specifies the SPIFFE Trust Domain and Bundle endpoint format, allowing systems in different trust domains to establish mutual trust and authenticate workloads across organizational or infrastructure boundaries.
+- [Spiffe Get Trust Bundle Example](https://apis.io/examples/spiffe/spiffe-get-trust-bundle-example/)
 
-- **Human URL:** [https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Trust_Domain_and_Bundle.md](https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Trust_Domain_and_Bundle.md)
+#### Collections (2)
 
-#### Tags
+Postman and Open Collection request collections.
 
-- Cross-Domain
-- Federation
-- Identity
-- Security
-- Trust Domain
+- [SPIFFE Federation Endpoint Bundle API](https://apis.io/collections/spiffe/open-spiffe-bundle-api/)
+- [SPIFFE Federation Bundle Endpoint API](https://apis.io/collections/spiffe/open-spiffe-federation/)
 
-#### Properties
+#### Governance rules (3)
 
-- [Documentation](https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/)
-- [Reference](https://github.com/spiffe/spiffe/blob/main/standards/SPIFFE_Trust_Domain_and_Bundle.md)
-- [OpenAPI](openapi/spiffe-federation-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/spiffe-federation.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/spiffe-federation.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
-- [GitHub Repository](https://github.com/spiffe/spiffe)
-- [Spectral Rules](rules/spiffe-rules.yml)
+Spectral rulesets for the provider's contracts.
 
-## Common Properties
+- [SPIFFE — asyncapi rules](https://apis.io/rules/spiffe/spiffe-asyncapi-spectral-rules/)
+- [SPIFFE — jsonschema rules](https://apis.io/rules/spiffe/spiffe-jsonschema-spectral-rules/)
+- [SPIFFE API Rules](https://apis.io/rules/spiffe/spiffe-rules/)
 
-- [LinkedIn](https://www.linkedin.com/company/spiffe-secure-production-identity-framework-for-everyone)
-- [JSON Schema](json-schema/spiffe-svid-schema.json) — [JSON Schema](https://json-schema.org/specification)
-- [JSON-LD](json-ld/spiffe-context.jsonld) — [JSON-LD](https://www.w3.org/TR/json-ld11/)
-- [Spectral Rules](rules/spiffe-rules.yml)
-- [Vocabulary](vocabulary/spiffe-vocabulary.yml)
+#### Security (1)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Spiffe Domain Security](https://apis.io/security/spiffe/spiffe-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Spiffe Plans Pricing](https://apis.io/plans/spiffe/spiffe-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Spiffe Rate Limits](https://apis.io/rate-limits/spiffe/spiffe-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Spiffe Finops](https://apis.io/finops/spiffe/spiffe-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://spiffe.io/)
 - [Documentation](https://spiffe.io/docs/latest/)
-- [Getting Started](https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/)
-- [GitHub Organization](https://github.com/spiffe)
-- [GitHub Repository](https://github.com/spiffe/spiffe)
-- [Community](https://spiffe.io/community/)
-- [Slack](https://slack.spiffe.io)
+- [Getting started](https://spiffe.io/docs/latest/spiffe-about/spiffe-concepts/)
 - [Blog](https://spiffe.io/blog/)
 - [Security](https://github.com/spiffe/spiffe/blob/main/SECURITY.md)
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/spiffe)
+- [GitHub](https://github.com/spiffe)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 32.9** — thin · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 64.3 |
+| Contract quality | 54.0 |
+| Contract governance | 27.3 |
+| Operational transparency | 10.5 |
+| Developer ergonomics | 33.3 |
+| Access clarity | 7.9 |
+
+**Agent readiness 25.7** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | na |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | na |
+| Error Semantics | verified |
+| OpenAPI Examples | — |
+| Rate Limit Signal | derived (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | na |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 10.8** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/spiffe/](https://apis.io/providers/spiffe/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for SPIFFE: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/spiffe/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
